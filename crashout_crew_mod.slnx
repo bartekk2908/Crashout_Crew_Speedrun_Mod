@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/Elementy rozwiązania/">
+    <File Path=".gitignore" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="crashout_crew_mod/crashout_crew_mod.csproj" />
+</Solution>

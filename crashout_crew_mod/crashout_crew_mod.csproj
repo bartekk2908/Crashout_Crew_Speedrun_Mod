@@ -1,0 +1,52 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="0Harmony">
+      <HintPath>..\..\..\..\..\GRY\Steam\steamapps\common\CrashoutCrew\BepInEx\core\0Harmony.dll</HintPath>
+    </Reference>
+    <Reference Include="aggro.core">
+      <HintPath>..\..\..\..\..\GRY\Steam\steamapps\common\CrashoutCrew\CrashoutCrew_Data\Managed\aggro.core.dll</HintPath>
+    </Reference>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>..\..\..\..\..\GRY\Steam\steamapps\common\CrashoutCrew\CrashoutCrew_Data\Managed\Assembly-CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="BepInEx">
+      <HintPath>..\..\..\..\..\GRY\Steam\steamapps\common\CrashoutCrew\BepInEx\core\BepInEx.dll</HintPath>
+    </Reference>
+    <Reference Include="febjam">
+      <HintPath>..\..\..\..\..\GRY\Steam\steamapps\common\CrashoutCrew\CrashoutCrew_Data\Managed\febjam.dll</HintPath>
+    </Reference>
+    <Reference Include="Mirror">
+      <HintPath>..\..\..\..\..\GRY\Steam\steamapps\common\CrashoutCrew\CrashoutCrew_Data\Managed\Mirror.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\..\..\..\GRY\Steam\steamapps\common\CrashoutCrew\CrashoutCrew_Data\Managed\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.TextMeshPro">
+      <HintPath>..\..\..\..\..\GRY\Steam\steamapps\common\CrashoutCrew\CrashoutCrew_Data\Managed\Unity.TextMeshPro.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>..\..\..\..\..\GRY\Steam\steamapps\common\CrashoutCrew\CrashoutCrew_Data\Managed\UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>..\..\..\..\..\GRY\Steam\steamapps\common\CrashoutCrew\CrashoutCrew_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.InputLegacyModule">
+      <HintPath>..\..\..\..\..\GRY\Steam\steamapps\common\CrashoutCrew\CrashoutCrew_Data\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.JSONSerializeModule">
+      <HintPath>..\..\..\..\..\GRY\Steam\steamapps\common\CrashoutCrew\CrashoutCrew_Data\Managed\UnityEngine.JSONSerializeModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>..\..\..\..\..\GRY\Steam\steamapps\common\CrashoutCrew\CrashoutCrew_Data\Managed\UnityEngine.UI.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UIModule">
+      <HintPath>..\..\..\..\..\GRY\Steam\steamapps\common\CrashoutCrew\CrashoutCrew_Data\Managed\UnityEngine.UIModule.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

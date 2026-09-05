@@ -1,0 +1,29 @@
+
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+*.zip
+*.rar
+
+# Visual Studio
+.vs/
+*.user
+*.userosscache
+*.sln.docstates
+*.suo
+*.cache
+
+# VS Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+
+.DS_Store
+.DS_Store?
+Thumbs.db
+ehthumbs.db
+
+*.dll
+*.cfg
