@@ -45,6 +45,8 @@ namespace SpeedrunMod
         public static ConfigEntry<bool> ConfigEnableQuickReset;
         public static ConfigEntry<KeyCode> ConfigQuickResetKey;
         public static ConfigEntry<bool> ConfigShowMenuTime;
+        public static ConfigEntry<bool> ConfigShowSumOfBest;
+        public static ConfigEntry<bool> ConfigShowAttempts;
 
         public static ConfigEntry<string> ConfigTimerColor;
         public static ConfigEntry<string> ConfigDeltaColorNegative;
@@ -81,6 +83,16 @@ namespace SpeedrunMod
                 "ShowMenuTime",
                 true,
                 "Enables or disables displaying mod PB time in the level selection menu.");
+
+            ConfigShowSumOfBest = Config.Bind("General",
+                "ShowSumOfBest",
+                true,
+                "Enables or disables displaying Sum of Best in the level selection menu.");
+
+            ConfigShowAttempts = Config.Bind("General",
+                "ShowAttempts",
+                true,
+                "Enables or disables displaying the attempt counter in the level selection menu.");
 
             ConfigTimerColor = Config.Bind("UI.Colors",
                 "TimerColor",
@@ -126,6 +138,11 @@ namespace SpeedrunMod
 
         public static string FormatTime(float timeInSeconds)
         {
+            if (timeInSeconds == float.MaxValue || float.IsInfinity(timeInSeconds))
+            {
+                return "-";
+            }
+
             TimeSpan ts = TimeSpan.FromSeconds(timeInSeconds);
             return string.Format("{0:00}:{1:00}:{2:00}",
                                   Math.Floor(ts.TotalMinutes),
@@ -281,7 +298,6 @@ namespace SpeedrunMod
                 }
             }
 
-            // ZAMIAST: if (Plugin.ConfigEnableQuickReset.Value && UnityEngine.Input.GetKeyDown(KeyCode.F9))
             if (Plugin.ConfigEnableQuickReset.Value && UnityEngine.Input.GetKeyDown(Plugin.ConfigQuickResetKey.Value))
             {
                 if (GameUtil.isLobby)
@@ -297,19 +313,19 @@ namespace SpeedrunMod
             }
 
             // FOR DEBUGING
-            //if (UnityEngine.Input.GetKeyDown(KeyCode.F8))
-            //{
-            //    var shiftManager = Aggro.Core.Networking.NetworkAggroManagerBase<ShiftManager>.instance;
-            //    if (shiftManager != null)
-            //    {
-            //        var winMethod = HarmonyLib.AccessTools.Method(typeof(ShiftManager), "CmdShiftDevCmdWinShift");
-            //        if (winMethod != null)
-            //        {
-            //            winMethod.Invoke(shiftManager, new object[] { ContractScore.S });
-            //            Debug.Log("[SpeedrunMod] Dev command triggered: Instant win (Rank S)!");
-            //        }
-            //    }
-            //}
+            if (UnityEngine.Input.GetKeyDown(KeyCode.F8))
+            {
+                var shiftManager = Aggro.Core.Networking.NetworkAggroManagerBase<ShiftManager>.instance;
+                if (shiftManager != null)
+                {
+                    var winMethod = HarmonyLib.AccessTools.Method(typeof(ShiftManager), "CmdShiftDevCmdWinShift");
+                    if (winMethod != null)
+                    {
+                        winMethod.Invoke(shiftManager, new object[] { ContractScore.S });
+                        Debug.Log("[SpeedrunMod] Dev command triggered: Instant win (Rank S)!");
+                    }
+                }
+            }
         }
     }
 
@@ -363,15 +379,19 @@ namespace SpeedrunMod
             {
                 if (record.pbSplits != null) Plugin.LoadedPBSplits = new List<float>(record.pbSplits);
                 if (record.bestSegments != null) Plugin.LoadedBestSegments = new List<float>(record.bestSegments);
-            }
 
-            if (record != null)
-            {
-                Debug.Log($"[SpeedrunMod] Loaded PB data for {levelName}. Total time to beat: {Plugin.FormatTime(record.totalTime)}");
+                if (record.totalTime < float.MaxValue)
+                {
+                    Debug.Log($"[SpeedrunMod] Loaded PB data for {levelName}. Total time to beat: {Plugin.FormatTime(record.totalTime)}");
+                }
+                else
+                {
+                    Debug.Log($"[SpeedrunMod] PB not established yet for {levelName}.");
+                }
             }
             else
             {
-                Debug.Log($"[SpeedrunMod] No previous PB found for {levelName}. This is a new run!");
+                Debug.Log($"[SpeedrunMod] No previous data found for {levelName}. This is a new run!");
             }
         }
 
@@ -431,6 +451,24 @@ namespace SpeedrunMod
                 SaveSplits(fileData);
             }
         }
+
+        public static void IncrementAttempt(string levelName)
+        {
+            if (string.IsNullOrEmpty(levelName) || levelName == "UnknownLevel") return;
+
+            SplitsSaveFile fileData = LoadSplits();
+            SplitRecord record = fileData.records.Find(r => r.levelName == levelName);
+
+            if (record == null)
+            {
+                record = new SplitRecord { levelName = levelName, totalTime = float.MaxValue, attempts = 0 };
+                fileData.records.Add(record);
+            }
+
+            record.attempts++;
+            SaveSplits(fileData);
+            Debug.Log($"[SpeedrunMod] Attempt #{record.attempts} started for {levelName}.");
+        }
     }
 
     [HarmonyPatch(typeof(ShiftManager))]
@@ -456,6 +494,7 @@ namespace SpeedrunMod
                     {
                         Plugin.CurrentLevelName = GameUtil.contract.name;
                         SplitsManager.LoadLevelDataIntoMemory(Plugin.CurrentLevelName);
+                        SplitsManager.IncrementAttempt(Plugin.CurrentLevelName);
                         Debug.Log($"[SpeedrunMod] Started: {Plugin.CurrentLevelName}");
                     }
                 }
@@ -557,10 +596,7 @@ namespace SpeedrunMod
         [HarmonyPostfix]
         public static void Postfix_SetUp(ContractSelectionUI __instance)
         {
-            if (!Plugin.ConfigShowMenuTime.Value)
-            {
-                return;
-            }
+            if (!Plugin.ConfigShowMenuTime.Value && !Plugin.ConfigShowAttempts.Value && !Plugin.ConfigShowSumOfBest.Value) return;
 
             SplitsSaveFile fileData = SplitsManager.LoadSplits();
 
@@ -572,65 +608,124 @@ namespace SpeedrunMod
                 {
                     ContractUI ui = __instance.contractGroup.GetChild(i).GetComponent<ContractUI>();
 
-                    if (ui != null)
+                    if (ui != null && ui.bestTimeText != null)
                     {
                         SplitRecord record = fileData.records.Find(r => r.levelName == contract.name);
 
-                        if (record != null && record.totalTime < float.MaxValue)
+                        bool hasPb = record != null && record.totalTime < float.MaxValue;
+                        int attemptsCount = record != null ? record.attempts : 0;
+
+                        bool drawPb = hasPb && Plugin.ConfigShowMenuTime.Value;
+                        bool drawSob = hasPb && Plugin.ConfigShowSumOfBest.Value && record.bestSegments != null && record.bestSegments.Count > 0;
+                        bool drawAttempts = Plugin.ConfigShowAttempts.Value;
+
+                        if (drawPb)
+                        {
+                            ui.bestTimeText.gameObject.SetActive(false);
+                        }
+                        else
+                        {
+                            ui.bestTimeText.gameObject.SetActive(true);
+                        }
+
+                        Transform parent = contract.type == ContractType.Random ? ui.transform : ui.bestTimeText.transform.parent;
+
+                        float currentYNormal = -45f;
+                        float currentYRandom = -290f;
+
+                        if (!drawPb)
+                        {
+                            currentYNormal -= 60f;
+                            currentYRandom -= 60f;
+                        }
+
+                        // PB
+                        Transform existingModText = parent.Find("ModSpeedrunText");
+                        if (drawPb)
                         {
                             string pbText = Plugin.FormatTime(record.totalTime);
+                            existingModText = CreateOrUpdateTextObj(existingModText, parent, ui, contract, "ModSpeedrunText", currentYNormal, currentYRandom, 60);
+                            existingModText.GetComponent<TextMeshProUGUI>().text = $"<color={Plugin.ConfigMenuTimeColor.Value}><b>{pbText}</b></color>";
 
-                            Transform parent;
-                            if (contract.type == ContractType.Random)
-                            {
-                                parent = ui.transform;
-                            }
-                            else
-                            {
-                                parent = ui.bestTimeText.transform.parent;
-                            }
-                            Transform existingModText = parent.Find("ModSpeedrunText");
-                            TextMeshProUGUI modText;
-
-                            if (existingModText == null)
-                            {
-                                GameObject modObj = new GameObject("ModSpeedrunText");
-                                modObj.transform.SetParent(parent, false);
-
-                                RectTransform modRect = modObj.AddComponent<RectTransform>();
-                                modText = modObj.AddComponent<TextMeshProUGUI>();
-
-                                RectTransform origRect = ui.bestTimeText.GetComponent<RectTransform>();
-                                modRect.anchorMin = origRect.anchorMin;
-                                modRect.anchorMax = origRect.anchorMax;
-                                modRect.pivot = origRect.pivot;
-                                modRect.sizeDelta = new Vector2(origRect.sizeDelta.x * 1.5f, 150f);
-
-                                if (contract.type == ContractType.Random)
-                                {
-                                    modRect.anchoredPosition = origRect.anchoredPosition + new Vector2(95, -350f);
-                                }
-                                else
-                                {
-                                    modRect.anchoredPosition = origRect.anchoredPosition + new Vector2(65, -110f);
-                                }
-
-                                modText.font = ui.bestTimeText.font;
-                                modText.fontSize = 60;
-                                modText.alignment = TextAlignmentOptions.TopLeft;
-                                modText.enableAutoSizing = false;
-                                modText.overflowMode = TextOverflowModes.Overflow;
-                            }
-                            else
-                            {
-                                modText = existingModText.GetComponent<TextMeshProUGUI>();
-                            }
-
-                            modText.text = $"<color={Plugin.ConfigMenuTimeColor.Value}><b>{pbText}</b></color>";
+                            currentYNormal -= 60f;
+                            currentYRandom -= 60f;
                         }
+                        else if (existingModText != null) existingModText.gameObject.SetActive(false);
+
+                        // Sum of Best
+                        Transform existingSobText = parent.Find("ModSpeedrunSoBText");
+                        if (drawSob)
+                        {
+                            float sumOfBest = 0f;
+                            foreach (float segment in record.bestSegments) sumOfBest += segment;
+
+                            existingSobText = CreateOrUpdateTextObj(existingSobText, parent, ui, contract, "ModSpeedrunSoBText", currentYNormal, currentYRandom, 30);
+                            existingSobText.GetComponent<TextMeshProUGUI>().text = $"<color={Plugin.ConfigMenuTimeColor.Value}><b>SoB {Plugin.FormatTime(sumOfBest)}</b></color>";
+
+                            currentYNormal -= 35f;
+                            currentYRandom -= 35f;
+                        }
+                        else if (existingSobText != null) existingSobText.gameObject.SetActive(false);
+
+                        // Attempts
+                        Transform existingAttemptsText = parent.Find("ModSpeedrunAttemptsText");
+                        if (drawAttempts)
+                        {
+                            existingAttemptsText = CreateOrUpdateTextObj(existingAttemptsText, parent, ui, contract, "ModSpeedrunAttemptsText", currentYNormal, currentYRandom, 30);
+                            existingAttemptsText.GetComponent<TextMeshProUGUI>().text = $"<color={Plugin.ConfigMenuTimeColor.Value}><b>Attempts {attemptsCount}</b></color>";
+                        }
+                        else if (existingAttemptsText != null) existingAttemptsText.gameObject.SetActive(false);
                     }
                 }
             }
+        }
+
+        private static Transform CreateOrUpdateTextObj(Transform existingTransform, Transform parent, ContractUI ui, ContractObject contract, string objName, float yNormal, float yRandom, int fontSize)
+        {
+            TextMeshProUGUI textComp;
+            RectTransform rectComp;
+
+            if (existingTransform == null)
+            {
+                GameObject newObj = new GameObject(objName);
+                newObj.transform.SetParent(parent, false);
+
+                rectComp = newObj.AddComponent<RectTransform>();
+                textComp = newObj.AddComponent<TextMeshProUGUI>();
+
+                RectTransform origRect = ui.bestTimeText.GetComponent<RectTransform>();
+                rectComp.anchorMin = origRect.anchorMin;
+                rectComp.anchorMax = origRect.anchorMax;
+                rectComp.pivot = origRect.pivot;
+                rectComp.sizeDelta = new Vector2(origRect.sizeDelta.x * 1.5f, 150f);
+
+                textComp.font = ui.bestTimeText.font;
+                textComp.alignment = TextAlignmentOptions.TopLeft;
+                textComp.enableAutoSizing = false;
+                textComp.overflowMode = TextOverflowModes.Overflow;
+
+                existingTransform = newObj.transform;
+            }
+            else
+            {
+                rectComp = existingTransform.GetComponent<RectTransform>();
+                textComp = existingTransform.GetComponent<TextMeshProUGUI>();
+                existingTransform.gameObject.SetActive(true);
+            }
+
+            textComp.fontSize = fontSize;
+
+            RectTransform baseRect = ui.bestTimeText.GetComponent<RectTransform>();
+            if (contract.type == ContractType.Random)
+            {
+                rectComp.anchoredPosition = baseRect.anchoredPosition + new Vector2(95, yRandom);
+            }
+            else
+            {
+                rectComp.anchoredPosition = baseRect.anchoredPosition + new Vector2(63, yNormal);
+            }
+
+            return existingTransform;
         }
     }
 
@@ -639,6 +734,7 @@ namespace SpeedrunMod
     {
         public string levelName;
         public float totalTime;
+        public int attempts = 0;
         public List<float> pbSplits = new List<float>();
         public List<float> bestSegments = new List<float>();
     }
