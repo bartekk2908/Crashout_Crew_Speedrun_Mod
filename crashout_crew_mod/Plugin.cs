@@ -19,7 +19,7 @@ namespace SpeedrunMod
         {
             public const string PLUGIN_GUID = "com.sialala.speedrun";
             public const string PLUGIN_NAME = "Speedrun Mod";
-            public const string PLUGIN_VERSION = "1.0.0";
+            public const string PLUGIN_VERSION = "1.1.0";
         }
 
         // TIMER
