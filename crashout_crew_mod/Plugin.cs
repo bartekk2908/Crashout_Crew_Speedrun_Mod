@@ -313,19 +313,19 @@ namespace SpeedrunMod
             }
 
             // FOR DEBUGING
-            if (UnityEngine.Input.GetKeyDown(KeyCode.F8))
-            {
-                var shiftManager = Aggro.Core.Networking.NetworkAggroManagerBase<ShiftManager>.instance;
-                if (shiftManager != null)
-                {
-                    var winMethod = HarmonyLib.AccessTools.Method(typeof(ShiftManager), "CmdShiftDevCmdWinShift");
-                    if (winMethod != null)
-                    {
-                        winMethod.Invoke(shiftManager, new object[] { ContractScore.S });
-                        Debug.Log("[SpeedrunMod] Dev command triggered: Instant win (Rank S)!");
-                    }
-                }
-            }
+            //if (UnityEngine.Input.GetKeyDown(KeyCode.F8))
+            //{
+            //    var shiftManager = Aggro.Core.Networking.NetworkAggroManagerBase<ShiftManager>.instance;
+            //    if (shiftManager != null)
+            //    {
+            //        var winMethod = HarmonyLib.AccessTools.Method(typeof(ShiftManager), "CmdShiftDevCmdWinShift");
+            //        if (winMethod != null)
+            //        {
+            //            winMethod.Invoke(shiftManager, new object[] { ContractScore.S });
+            //            Debug.Log("[SpeedrunMod] Dev command triggered: Instant win (Rank S)!");
+            //        }
+            //    }
+            //}
         }
     }
 
