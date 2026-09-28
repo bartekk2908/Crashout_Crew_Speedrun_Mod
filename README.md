@@ -6,17 +6,17 @@ This mod adds a live timer along with a delta timer. The delta timer allows for 
 
 **In-Game Timer & Delta Comparisons:**
 
-![Live Timer](pictures/1.png)
+![Live Timer](https://github.com/bartekk2908/Crashout_Crew_Speedrun_Mod/blob/master/pictures/1.png?raw=true)
 
-![Time Loss - Red Delta](pictures/2.png)
+![Time Loss - Red Delta](https://github.com/bartekk2908/Crashout_Crew_Speedrun_Mod/blob/master/pictures/2.png?raw=true)
 
-![Time Save - Green Delta](pictures/3.png)
+![Time Save - Green Delta](https://github.com/bartekk2908/Crashout_Crew_Speedrun_Mod/blob/master/pictures/3.png?raw=true)
 
-![Best Segment - Gold Delta](pictures/4.png)
+![Best Segment - Gold Delta](https://github.com/bartekk2908/Crashout_Crew_Speedrun_Mod/blob/master/pictures/4.png?raw=true)
 
 **Menu Integration:**
 
-![Personal Best in Menu](pictures/5.png)
+![Personal Best in Menu](https://github.com/bartekk2908/Crashout_Crew_Speedrun_Mod/blob/master/pictures/5.png?raw=true)
 
 ## Features
 
