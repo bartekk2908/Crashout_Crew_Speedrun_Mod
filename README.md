@@ -5,20 +5,26 @@ This mod adds a live timer along with a delta timer. The delta timer allows for 
 ## Screenshots
 
 **In-Game Timer & Delta Comparisons:**
+
 ![Live Timer](pictures/1.png)
+
 ![Time Loss - Red Delta](pictures/2.png)
+
 ![Time Save - Green Delta](pictures/3.png)
+
 ![Best Segment - Gold Delta](pictures/4.png)
 
 **Menu Integration:**
+
 ![Personal Best in Menu](pictures/5.png)
 
 ## Features
 
-* Live Timer & Delta Timer: Measures active shift time and compares it against your best saved splits.
-* Menu UI: Displays your personal best time from mod's saved splits in the level selection menu.
-* Quick Reset: A dedicated keybind to instantly start a run or safely abort it.
-* Configurable: Toggle visibility, adjust text sizes, change colors, and rebind keys.
+* **Live Timer & Delta Timer:** Measures active shift time and compares it against your best saved splits.
+* **Menu UI:** Displays your personal best time, Sum of Best, and total attempt counter directly in the level selection menu.
+* **Number of Players Tracking:** Times, splits, and attempts are automatically tracked and saved separately depending on the number of players in the lobby.
+* **Quick Reset:** A dedicated keybind to instantly start a run or safely abort it.
+* **Configurable:** Toggle visibility of specific UI elements, adjust text sizes, change colors, and rebind keys.
 
 ## Requirements
 
@@ -33,7 +39,7 @@ This mod adds a live timer along with a delta timer. The delta timer allows for 
 
 ## Controls
 
-* Quick Reset (Default: F9):
+* **Quick Reset (Default: F9):**
   * When used in the lobby, it forces a quick start for the next run.
   * When used during an active run, it immediately aborts the mission and safely returns you to the lobby menu.
   * The key can be changed in the configuration file.
@@ -41,11 +47,11 @@ This mod adds a live timer along with a delta timer. The delta timer allows for 
 ## Configuration
 
 The mod creates a configuration file at `BepInEx/config/com.sialala.speedrun.cfg` after the first launch. You can edit it with any text editor to:
-* Enable or disable the main timer, delta timer, or menu PB display.
+* Enable or disable the main timer, delta timer, or menu UI elements (PB, SoB, Attempts).
 * Change the Quick Reset key.
 * Adjust font sizes.
 * Change text colors using standard HEX codes.
 
 ## Save Data
 
-Personal bests and best segments are saved in `SpeedrunSplits.json` inside the `BepInEx/plugins/` folder. You can back up, share, or delete this file to reset your times.
+Personal bests, best segments, and attempt counters are saved in `SpeedrunSplits.json` inside the `BepInEx/plugins/` folder. The records are categorized by level and player count. You can back up, share, or delete this file to reset your times.
