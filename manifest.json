@@ -1,0 +1,11 @@
+{
+  "name": "Speedrun_Mod",
+  "displayName": "Speedrun Mod",
+  "author": "Sialalala",
+  "version_number": "1.1.1",
+  "website_url": "https://github.com/bartekk2908/Crashout_Crew_Speedrun_Mod",
+  "description": "Adds a live timer and delta timer imitating LiveSplit for speedrunning.",
+  "dependencies": [
+    "BepInEx-BepInExPack-5.4.2100"
+  ]
+}
